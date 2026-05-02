@@ -1,0 +1,20 @@
+# Флаттер-мусор
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+
+# Андроид-мусор
+.gradle/
+local.properties
+*.kwks
+*.keystore
+*.jks
+
+# Логи и конфиги IDE
+.idea/
+.vscode/
+*.iml
+*.log
