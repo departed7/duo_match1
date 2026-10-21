@@ -1,5 +1,5 @@
 name: duo_match
-description: "Premium Student Dating Application with Advanced State Management"
+description: "Premium Student Dating Application with APK Export and Video Avatars"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -16,15 +16,27 @@ dependencies:
   shared_preferences: ^2.2.2
   provider: ^6.1.1
   image_picker: ^1.0.7
+  video_player: ^2.8.6
   dio: ^5.4.0
+  path_provider: ^2.1.2
+  share_plus: ^7.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/ic_launcher.png"
 
 flutter:
   uses-material-design: true
+
   assets:
     - assets/images/profile_1.jpg
     - assets/images/profile_2.jpg
+    - assets/icon/ic_launcher.png
+    - assets/apk/app.apk

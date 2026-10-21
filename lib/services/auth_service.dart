@@ -1,128 +1,71 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../main.dart';
 import '../models/user_model.dart';
-import '../screens/main_navigation_screen.dart';
 
 class AuthService {
-  static const String _sessionKey = 'is_logged_in';
-  static const String _adminLogin = 'admin';
-  static const String _adminPass = 'Password123!';
+  static final List<UserProfile> testUsers = [
+    UserProfile(
+      userId: 'admin_1',
+      fullName: 'Администратор',
+      birthDate: DateTime(2000, 1, 1),
+      gender: 'Мужской',
+      university: 'РЭУ им. Плеханова • Модератор',
+      bio: 'Системный аккаунт модератора DuoMatch.',
+      status: 'Техподдержка',
+      photos: ['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'],
+      interests: const ['Безопасность', 'IT', 'Учеба'],
+      isPremium: true,
+      email: 'admin@duomatch.ru',
+      relationship: 'Модератор',
+    ),
+    UserProfile(
+      userId: 'u_volkov',
+      fullName: 'Александр Волков',
+      birthDate: DateTime(2003, 5, 20),
+      gender: 'Мужской',
+      university: 'МГТУ им. Баумана • 4 курс',
+      bio: 'Инженер и гитарист. Ищу ту, с кем можно сходить на рок-концерт.',
+      status: 'На парах',
+      photos: ['https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500'],
+      interests: const ['Рок', 'Гитара', 'Космос', 'Спорт'],
+      isPremium: true,
+      email: 'volkov@mail.ru',
+      relationship: 'Свободен',
+    ),
+    UserProfile(
+      userId: 'u_belova',
+      fullName: 'Дарья Белова',
+      birthDate: DateTime(2004, 4, 14),
+      gender: 'Женский',
+      university: 'РЭУ им. Плеханова • 3 курс',
+      bio: 'Обожаю винил, кофе и долгие вечерние прогулки.',
+      status: 'Слушаю музыку',
+      photos: ['assets/images/profile_1.jpg'],
+      interests: const ['Музыка', 'Кофе', 'Дизайн'],
+      isPremium: false,
+      email: 'belova@mail.ru',
+      relationship: 'Свободна',
+    ),
+    UserProfile(
+      userId: 'u_osipyan',
+      fullName: 'Лусине Осипян',
+      birthDate: DateTime(2004, 11, 17),
+      gender: 'Женский',
+      university: 'РЭУ им. Плеханова • 3 курс',
+      bio: 'Люблю душевные разговоры до утра и зеленый чай.',
+      status: 'Пью чай',
+      photos: ['assets/images/profile_2.jpg'],
+      interests: const ['Фотография', 'Чай', 'Психология'],
+      isPremium: true,
+      email: 'osipyan@mail.ru',
+      relationship: 'Свободна',
+    ),
+  ];
 
-  static String? validateIdentity(String value) {
-    if (value.isEmpty) {
-      return 'Введите Email или Телефон';
-    }
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    final phoneRegex = RegExp(r'^\+?[78]?[0-9]{10,11}$');
-    if (value == _adminLogin) {
-      return null;
-    }
-    if (!emailRegex.hasMatch(value) && !phoneRegex.hasMatch(value)) {
-      return 'Неверный формат почты или номера';
-    }
+  static UserProfile? getTestUser(String email, String password) {
+    final clean = email.trim().toLowerCase();
+    if (clean == 'admin@duomatch.ru' && password == 'Admin123!') return testUsers[0];
+    if (clean == 'volkov@mail.ru' && password == 'Volkov123!') return testUsers[1];
+    if (clean == 'belova@mail.ru' && password == 'Belova123!') return testUsers[2];
+    if (clean == 'osipyan@mail.ru' && password == 'Osipyan123!') return testUsers[3];
     return null;
-  }
-
-  static String? validatePassword(String value) {
-    if (value.isEmpty) {
-      return 'Введите пароль';
-    }
-    if (value == _adminPass) {
-      return null;
-    }
-    if (value.length < 8) {
-      return 'Минимум 8 символов';
-    }
-    return null;
-  }
-
-  static Future<void> performLogin({
-    required BuildContext context,
-    required String login,
-    required String password,
-  }) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    
-    if (login == _adminLogin && password == _adminPass) {
-      final admin = UserProfile(
-        userId: 'admin_root',
-        fullName: 'Александр (Admin)',
-        university: 'РЭУ им. Плеханова',
-        bio: 'Главный разработчик DuoMatch Premium.',
-        birthDate: DateTime(2003, 1, 1),
-        gender: 'Мужской',
-        photos: ['assets/images/profile_1.jpg'],
-        interests: ['Dart', 'Flutter'],
-        latitude: 55.75,
-        longitude: 37.61,
-        isPremium: true,
-      );
-
-      if (!context.mounted) {
-        return;
-      }
-
-      Provider.of<UserProvider>(context, listen: false).setUser(admin);
-      await prefs.setBool(_sessionKey, true);
-      
-      if (!context.mounted) {
-        return;
-      }
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-        (route) => false,
-      );
-    } else {
-      throw Exception('Пользователь не найден. Зарегистрируйтесь.');
-    }
-  }
-
-  static Future<void> performRegistration({
-    required BuildContext context,
-    required String name,
-    required String uni,
-    required String bio,
-    required String gender,
-    required DateTime birth,
-    required String photo,
-    required double scale,
-  }) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    
-    final newUser = UserProfile(
-      userId: DateTime.now().millisecondsSinceEpoch.toString(),
-      fullName: name,
-      university: uni,
-      bio: bio,
-      birthDate: birth,
-      gender: gender,
-      photos: [photo],
-      interests: [],
-      latitude: 55.75,
-      longitude: 37.61,
-      avatarScale: scale,
-    );
-
-    if (!context.mounted) {
-      return;
-    }
-
-    Provider.of<UserProvider>(context, listen: false).setUser(newUser);
-    await prefs.setBool(_sessionKey, true);
-
-    if (!context.mounted) {
-      return;
-    }
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-      (route) => false,
-    );
   }
 }

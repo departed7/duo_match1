@@ -1,0 +1,433 @@
+@startuml
+set namespaceSeparator ::
+
+class "duo_match::core::app_theme.dart::AppColors" {
+  {static} +Color primaryGreen
+  {static} +Color accentBlue
+  {static} +Color warningYellow
+  {static} +Color errorRed
+  {static} +Color backgroundLight
+  {static} +Color backgroundDark
+  {static} +Color muted
+  {static} +Color cardBackground
+  {static} +Color cardBackgroundDark
+  {static} +Color scaffoldLight
+  {static} +Color scaffoldDark
+  {static} +Color textPrimary
+  {static} +Color textMuted
+  {static} +Color electricBlue
+  {static} +Color darkIndigo
+  {static} +Color softCoraldddd
+}
+
+"duo_match::core::app_theme.dart::AppColors" o-- "dart::ui::Color"
+
+class "duo_match::core::app_theme.dart::AppTheme" {
+  {static} +Color primaryGreen
+  {static} +Color accentBlue
+  {static} +Color warningYellow
+  {static} +Color errorRed
+  {static} +Color backgroundLight
+  {static} +Color backgroundDark
+  {static} +Color muted
+  {static} +LinearGradient mainGradient
+  {static} +TextTheme textTheme
+  {static} +ThemeData light
+  {static} +ThemeData dark
+  {static} +Widget loadingIndicator()
+  {static} +BoxDecoration cardGradientDecoration()
+}
+
+"duo_match::core::app_theme.dart::AppTheme" o-- "dart::ui::Color"
+"duo_match::core::app_theme.dart::AppTheme" o-- "flutter::src::painting::gradient.dart::LinearGradient"
+"duo_match::core::app_theme.dart::AppTheme" o-- "flutter::src::material::text_theme.dart::TextTheme"
+"duo_match::core::app_theme.dart::AppTheme" o-- "flutter::src::material::theme_data.dart::ThemeData"
+
+class "duo_match::core::constants.dart::AppConstants" {
+  {static} +int maxPhotoCount
+  {static} +int minPasswordLength
+  {static} +int minUserAge
+  {static} +int bioMaxLength
+  {static} +double apiTimeout
+  {static} +double geolocationAccuracy
+  {static} +String apiBaseUrl
+}
+
+class "duo_match::core::validators.dart::AppValidators" {
+  {static} +String? validateRequired()
+  {static} +String? validateEmail()
+  {static} +String? validatePassword()
+}
+
+class "duo_match::main.dart::ThemeProvider" {
+  -SharedPreferences _prefs
+  -bool _isDark
+  +bool isDark
+  +void toggleTheme()
+}
+
+"duo_match::main.dart::ThemeProvider" o-- "shared_preferences::src::shared_preferences_legacy.dart::SharedPreferences"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "duo_match::main.dart::ThemeProvider"
+
+class "duo_match::main.dart::DuoMatchApp" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "duo_match::main.dart::DuoMatchApp"
+
+class "duo_match::models::message_model.dart::ChatMessage" {
+  +String senderId
+  +String text
+  +DateTime timestamp
+  +bool isMe
+}
+
+class "duo_match::models::user_model.dart::UserProfile" {
+  +String userId
+  +String fullName
+  +DateTime birthDate
+  +String gender
+  +String university
+  +String bio
+  +String status
+  +List<String> photos
+  +List<String> interests
+  +double latitude
+  +double longitude
+  +String? lastMessage
+  +bool isIncognito
+  +bool isPremium
+  +double avatarScale
+  +String? videoPath
+  +int age
+}
+
+class "duo_match::providers::chat_provider.dart::ChatProvider" {
+  -List<UserProfile> _matches
+  -Map<String, List<ChatMessage>> _history
+  -List<UserProfile> _likers
+  -List<UserProfile> _swipeHistory
+  -Random _random
+  -List<String> _femaleNames
+  -List<String> _maleNames
+  -List<String> _femaleBio
+  -List<String> _maleBio
+  -List<String> _femaleGreetings
+  -List<String> _maleGreetings
+  -List<String> _shortMessageReplies
+  -List<String> _femaleReplies
+  -List<String> _maleReplies
+  +List<UserProfile> matches
+  +List<UserProfile> likers
+  +void initLikers()
+  -String _getRandomGreeting()
+  +void createMatch()
+  +void addToHistory()
+  +UserProfile? undoLastSwipe()
+  +String getLastMessage()
+  +List<ChatMessage> getMessages()
+  +void sendMessage()
+  +void botReply()
+  -void _startBotConversation()
+  -void _sendBotMessage()
+}
+
+"duo_match::providers::chat_provider.dart::ChatProvider" o-- "dart::math::Random"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "duo_match::providers::chat_provider.dart::ChatProvider"
+
+class "duo_match::providers::user_provider.dart::UserProvider" {
+  -SharedPreferences _prefs
+  -UserProfile? _currentUser
+  +UserProfile? currentUser
+  -void _initUser()
+  +void setUser()
+  +void saveProfile()
+  +void updateStatus()
+  +void setAvatar()
+  +void setPremium()
+  +void setIncognito()
+}
+
+"duo_match::providers::user_provider.dart::UserProvider" o-- "shared_preferences::src::shared_preferences_legacy.dart::SharedPreferences"
+"duo_match::providers::user_provider.dart::UserProvider" o-- "duo_match::models::user_model.dart::UserProfile"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "duo_match::providers::user_provider.dart::UserProvider"
+
+class "duo_match::screens::auth::auth_screen.dart::AuthScreen" {
+  +State<AuthScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "duo_match::screens::auth::auth_screen.dart::AuthScreen"
+
+class "duo_match::screens::auth::auth_screen.dart::_AuthScreenState" {
+  -GlobalKey<FormState> _formKey
+  -TextEditingController _emailCtrl
+  -TextEditingController _passwordCtrl
+  -TextEditingController _phoneCtrl
+  -TextEditingController _nameCtrl
+  -TextEditingController _uniCtrl
+  -TextEditingController _bioCtrl
+  -TextEditingController _districtSearchCtrl
+  -TextEditingController _uniSearchCtrl
+  -ImagePicker _picker
+  -DateTime _birthDate
+  -String _gender
+  -String _lookingFor
+  -String _lookingForGender
+  -String _relationship
+  -String _district
+  -String _avatarPath
+  -String? _videoPath
+  -bool _isLoading
+  -bool _isPremium
+  -bool _isLoginMode
+  -VideoPlayerController? _videoController
+  -List<String> _allDistricts
+  -List<String> _allUnis
+  -List<String> _lookingForOptions
+  -List<String> _filteredDistricts
+  -List<String> _relationships
+  -dynamic _pickBirthDate()
+  -dynamic _pickFromGallery()
+  -dynamic _pickFromCamera()
+  -dynamic _pickVideo()
+  -dynamic _showMediaPicker()
+  -Widget _mediaOption()
+  -String? _validatePassword()
+  -String? _validatePhone()
+  -String? _validateName()
+  -dynamic _submit()
+  -Widget _buildAvatar()
+  +void initState()
+  +void dispose()
+  -Widget _buildTextField()
+  -void _showDistrictPicker()
+  -void _showUniPicker()
+  -void _showPremiumSuccess()
+  +Widget build()
+}
+
+"duo_match::screens::auth::auth_screen.dart::_AuthScreenState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"duo_match::screens::auth::auth_screen.dart::_AuthScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"duo_match::screens::auth::auth_screen.dart::_AuthScreenState" o-- "image_picker::image_picker.dart::ImagePicker"
+"duo_match::screens::auth::auth_screen.dart::_AuthScreenState" o-- "video_player::video_player.dart::VideoPlayerController"
+"flutter::src::widgets::framework.dart::State" <|-- "duo_match::screens::auth::auth_screen.dart::_AuthScreenState"
+
+class "duo_match::screens::chat::chat_screen.dart::ChatScreen" {
+  +State<ChatScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "duo_match::screens::chat::chat_screen.dart::ChatScreen"
+
+class "duo_match::screens::chat::chat_screen.dart::_ChatScreenState" {
+  +void initState()
+  +Widget build()
+  -void _openChatDialog()
+  -void _showLikerProfile()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "duo_match::screens::chat::chat_screen.dart::_ChatScreenState"
+
+class "duo_match::screens::chat::chat_screen.dart::_ChatDetailScreen" {
+  +UserProfile user
+  +State<_ChatDetailScreen> createState()
+}
+
+"duo_match::screens::chat::chat_screen.dart::_ChatDetailScreen" o-- "duo_match::models::user_model.dart::UserProfile"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "duo_match::screens::chat::chat_screen.dart::_ChatDetailScreen"
+
+class "duo_match::screens::chat::chat_screen.dart::_ChatDetailScreenState" {
+  -TextEditingController _msgCtrl
+  -ScrollController _scrollCtrl
+  +void initState()
+  -void _scrollToBottom()
+  +void dispose()
+  +Widget build()
+  -void _sendMessage()
+  -void _showUserProfile()
+}
+
+"duo_match::screens::chat::chat_screen.dart::_ChatDetailScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"duo_match::screens::chat::chat_screen.dart::_ChatDetailScreenState" o-- "flutter::src::widgets::scroll_controller.dart::ScrollController"
+"flutter::src::widgets::framework.dart::State" <|-- "duo_match::screens::chat::chat_screen.dart::_ChatDetailScreenState"
+
+class "duo_match::screens::chat::matches_screen.dart::MatchesScreen" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "duo_match::screens::chat::matches_screen.dart::MatchesScreen"
+
+class "duo_match::screens::main_navigation_screen.dart::MainNavigationScreen" {
+  +State<MainNavigationScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "duo_match::screens::main_navigation_screen.dart::MainNavigationScreen"
+
+class "duo_match::screens::main_navigation_screen.dart::_MainNavigationScreenState" {
+  -int _currentIndex
+  {static} -List<Widget> _pages
+  -void _onTap()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "duo_match::screens::main_navigation_screen.dart::_MainNavigationScreenState"
+
+class "duo_match::screens::profile::edit_profile_screen.dart::EditProfileScreen" {
+  +State<EditProfileScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "duo_match::screens::profile::edit_profile_screen.dart::EditProfileScreen"
+
+class "duo_match::screens::profile::edit_profile_screen.dart::_EditProfileScreenState" {
+  -GlobalKey<FormState> _formKey
+  -TextEditingController _nameCtrl
+  -TextEditingController _bioCtrl
+  -TextEditingController _uniCtrl
+  -TextEditingController _statusCtrl
+  +void initState()
+  +void dispose()
+  -void _save()
+  +Widget build()
+}
+
+"duo_match::screens::profile::edit_profile_screen.dart::_EditProfileScreenState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"duo_match::screens::profile::edit_profile_screen.dart::_EditProfileScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "duo_match::screens::profile::edit_profile_screen.dart::_EditProfileScreenState"
+
+class "duo_match::screens::profile::profile_screen.dart::ProfileScreen" {
+  +State<ProfileScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "duo_match::screens::profile::profile_screen.dart::ProfileScreen"
+
+class "duo_match::screens::profile::profile_screen.dart::_ProfileScreenState" {
+  -ImagePicker _picker
+  -TextEditingController _statusController
+  -VideoPlayerController? _videoController
+  -String _email
+  -String _phone
+  -String _relationship
+  -String _district
+  -String _lookingFor
+  -bool _isExporting
+  +void initState()
+  -dynamic _loadUserData()
+  +void dispose()
+  -dynamic _changeAvatar()
+  -dynamic _pickImage()
+  -dynamic _pickVideo()
+  -void _showPremiumDialog()
+  -dynamic _handleApkExport()
+  +Widget build()
+  -Widget _infoRow()
+}
+
+"duo_match::screens::profile::profile_screen.dart::_ProfileScreenState" o-- "image_picker::image_picker.dart::ImagePicker"
+"duo_match::screens::profile::profile_screen.dart::_ProfileScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"duo_match::screens::profile::profile_screen.dart::_ProfileScreenState" o-- "video_player::video_player.dart::VideoPlayerController"
+"flutter::src::widgets::framework.dart::State" <|-- "duo_match::screens::profile::profile_screen.dart::_ProfileScreenState"
+
+class "duo_match::screens::splash_screen.dart::SplashScreen" {
+  +State<SplashScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "duo_match::screens::splash_screen.dart::SplashScreen"
+
+class "duo_match::screens::splash_screen.dart::_SplashScreenState" {
+  +void initState()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "duo_match::screens::splash_screen.dart::_SplashScreenState"
+
+class "duo_match::screens::swipe::swipe_screen.dart::SwipeScreen" {
+  +State<SwipeScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "duo_match::screens::swipe::swipe_screen.dart::SwipeScreen"
+
+class "duo_match::screens::swipe::swipe_screen.dart::_SwipeScreenState" {
+  -List<UserProfile> _stack
+  -int _idx
+  -Random _rnd
+  -bool _showFilters
+  -String _filterGender
+  -String _filterLookingFor
+  -List<String> _lookingForOptions
+  -List<String> _bioTemplatesFemale
+  -List<String> _bioTemplatesMale
+  -List<String> _interestsList
+  +void initState()
+  -dynamic _gen()
+  -void _onSwipeLeft()
+  -void _onSwipeRight()
+  -void _showMatchDialog()
+  -void _onUndo()
+  -void _showPremiumDialog()
+  +Widget build()
+  -Widget _buildFilterPanel()
+  -Widget _buildActionButton()
+}
+
+"duo_match::screens::swipe::swipe_screen.dart::_SwipeScreenState" o-- "dart::math::Random"
+"flutter::src::widgets::framework.dart::State" <|-- "duo_match::screens::swipe::swipe_screen.dart::_SwipeScreenState"
+
+class "duo_match::services::api_service.dart::ApiService" {
+  -Dio _dio
+  +dynamic getProfiles()
+  +dynamic sendLike()
+  +dynamic uploadPhoto()
+}
+
+"duo_match::services::api_service.dart::ApiService" o-- "dio::src::dio.dart::Dio"
+
+class "duo_match::services::auth_service.dart::AuthService" {
+  {static} -String _sessionKey
+  {static} -String _adminLogin
+  {static} -String _adminPass
+  {static} +String? validateIdentity()
+  {static} +String? validatePassword()
+  {static} +dynamic performLogin()
+  {static} +dynamic performRegistration()
+}
+
+class "duo_match::services::export_service.dart::ExportService" {
+  {static} +String apkFileName
+  {static} +dynamic generateAndShareApk()
+}
+
+class "duo_match::services::geo_service.dart::GeoService" {
+  {static} +dynamic requestGeoLocation()
+  {static} +double calculateDistance()
+}
+
+class "duo_match::widgets::action_button.dart::ActionButton" {
+  +IconData icon
+  +Color color
+  +void Function() onTap
+  +bool isSmall
+  +Widget build()
+}
+
+"duo_match::widgets::action_button.dart::ActionButton" o-- "flutter::src::widgets::icon_data.dart::IconData"
+"duo_match::widgets::action_button.dart::ActionButton" o-- "dart::ui::Color"
+"duo_match::widgets::action_button.dart::ActionButton" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "duo_match::widgets::action_button.dart::ActionButton"
+
+class "duo_match::widgets::user_card.dart::UserCard" {
+  +UserProfile user
+  +void Function() onSwipeLeft
+  +void Function() onSwipeRight
+  +Widget build()
+  -Widget _buildImage()
+  -ImageProvider<Object> _getImageProvider()
+  -Widget _buildInfo()
+  -void _showFullProfile()
+  -Widget _infoRow()
+}
+
+"duo_match::widgets::user_card.dart::UserCard" o-- "duo_match::models::user_model.dart::UserProfile"
+"duo_match::widgets::user_card.dart::UserCard" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "duo_match::widgets::user_card.dart::UserCard"
+
+
+@enduml

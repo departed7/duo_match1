@@ -1,81 +1,93 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../../main.dart';
-import '../../core/app_theme.dart';
+import 'package:duo_match/providers/user_provider.dart';
+import 'package:duo_match/core/app_theme.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
+
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  late TextEditingController _n, _b, _u;
-  late String _g;
-  late DateTime _d;
-  String? _p, _v;
-  double _s = 1.0;
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nameCtrl;
+  late TextEditingController _bioCtrl;
+  late TextEditingController _uniCtrl;
+  late TextEditingController _statusCtrl;
+  late TextEditingController _relCtrl;
+  late TextEditingController _emailCtrl;
 
   @override
   void initState() {
     super.initState();
-    final u = Provider.of<UserProvider>(context, listen: false).currentUser!;
-    _n = TextEditingController(text: u.fullName);
-    _b = TextEditingController(text: u.bio);
-    _u = TextEditingController(text: u.university);
-    _g = u.gender; 
-    _d = u.birthDate; 
-    _p = u.photos.first; 
-    _s = u.avatarScale; 
-    _v = u.videoPath;
+    final user = Provider.of<UserProvider>(context, listen: false).currentUser;
+    _nameCtrl = TextEditingController(text: user?.fullName ?? '');
+    _bioCtrl = TextEditingController(text: user?.bio ?? '');
+    _uniCtrl = TextEditingController(text: user?.university ?? '');
+    _statusCtrl = TextEditingController(text: user?.status ?? '');
+    _relCtrl = TextEditingController(text: user?.relationship ?? '');
+    _emailCtrl = TextEditingController(text: user?.email ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose(); _bioCtrl.dispose(); _uniCtrl.dispose();
+    _statusCtrl.dispose(); _relCtrl.dispose(); _emailCtrl.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    if (!_formKey.currentState!.validate()) return;
+    final up = Provider.of<UserProvider>(context, listen: false);
+    final u = up.currentUser;
+    if (u == null) return;
+    up.saveProfile(
+      _nameCtrl.text.trim(),
+      _bioCtrl.text.trim(),
+      _uniCtrl.text.trim(),
+      u.gender,
+      u.birthDate,
+      u.photos.isNotEmpty ? u.photos.first : 'assets/images/profile_1.jpg',
+      u.avatarScale,
+      u.videoPath,
+      _statusCtrl.text.trim(),
+      _relCtrl.text.trim(),
+      _emailCtrl.text.trim(),
+    );
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final up = Provider.of<UserProvider>(context);
-    final user = up.currentUser!;
     return Scaffold(
-      appBar: AppBar(title: const Text('РЕДАКТИРОВАНИЕ'), actions: [IconButton(icon: const Icon(Icons.done_all_rounded, color: AppColors.electricBlue), onPressed: () {
-        up.saveProfile(_n.text, _b.text, _u.text, _g, _d, _p!, _s, _v);
-        Navigator.pop(context);
-      })]),
-      body: SingleChildScrollView(padding: const EdgeInsets.all(30), child: Column(children: [
-        const Text('Настройте размер аватарки'),
-        Slider(value: _s, min: 0.5, max: 1.5, activeColor: AppColors.electricBlue, onChanged: (v) => setState(() => _s = v)),
-        GestureDetector(
-          onTap: () async {
-            final img = await ImagePicker().pickImage(source: ImageSource.gallery);
-            if (img != null) {
-              setState(() => _p = img.path);
-            }
-          },
-          child: Container(
-            height: 150 * _s, width: 150 * _s,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle, 
-              border: Border.all(color: AppColors.electricBlue, width: 3),
-              image: DecorationImage(image: _p!.startsWith('assets') ? AssetImage(_p!) as ImageProvider : FileImage(File(_p!)), fit: BoxFit.cover)
-            ),
+      appBar: AppBar(title: const Text('Редактировать профиль'), backgroundColor: AppColors.primaryGreen),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildField(_nameCtrl, 'Имя'),
+              _buildField(_emailCtrl, 'Email'),
+              _buildField(_uniCtrl, 'Университет'),
+              _buildField(_statusCtrl, 'Статус'),
+              _buildField(_relCtrl, 'Отношения'),
+              _buildField(_bioCtrl, 'О себе', maxLines: 3),
+              const SizedBox(height: 20),
+              ElevatedButton(onPressed: _save, child: const Text('Сохранить')),
+            ],
           ),
         ),
-        const SizedBox(height: 30),
-        if (user.isPremium) ...[
-          ElevatedButton.icon(onPressed: () => setState(() => _v = "video_path"), icon: const Icon(Icons.videocam), label: Text(_v == null ? 'Загрузить видео' : 'Видео загружено')),
-          const SizedBox(height: 20),
-        ],
-        _f(_n, 'ФИО'),
-        _f(_u, 'Университет'),
-        _f(_b, 'О себе', m: 5),
-      ])),
+      ),
     );
   }
 
-  Widget _f(TextEditingController c, String l, {int m = 1}) {
+  Widget _buildField(TextEditingController ctrl, String label, {int maxLines = 1}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: TextField(controller: c, maxLines: m, decoration: InputDecoration(labelText: l, filled: true)),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(controller: ctrl, decoration: InputDecoration(labelText: label), maxLines: maxLines),
     );
   }
 }

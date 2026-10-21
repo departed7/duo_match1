@@ -4,7 +4,7 @@ import '../core/constants.dart';
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: AppConstants.API_BASE_URL,
+      baseUrl: AppConstants.apiBaseUrl,
       connectTimeout: const Duration(milliseconds: 5000),
       receiveTimeout: const Duration(milliseconds: 3000),
       headers: {
